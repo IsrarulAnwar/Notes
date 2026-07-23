@@ -1,0 +1,204 @@
+winadmin
+Roger@357
+
+
+New Changes:
+
+- an instance called cron.seinternal.com where we run zabbix-robot and all zabbix-server side monitoring scripts (which we will move from server5) ?
+
+Zabbix Troubleshootings
+
+root@cleanserver1.mxserver.ro ~ # telnet monitor.seinternal.com 10051
+Trying 154.49.70.150...
+Connected to monitor.seinternal.com.
+Escape character is '^]'.
+^]
+telnet> Connection closed.
+root@cleanserver1.mxserver.ro ~ #
+
+root@cron:~# telnet cleanserver1.mxserver.ro 10050
+Trying 89.44.47.45...
+Connected to cleanserver1.mxserver.ro.
+Escape character is '^]'.
+^]
+telnet>
+Connection closed.
+root@cron:~#
+
+
+  719  2024-12-30 12:15:19 mysql
+  720  2024-12-31 22:25:32 mysql -e "show grants for 'zabbix'@'localhost';"
+  721  2024-12-31 22:25:35 mysql -e "GRANT SLAVE MONITOR ON *.* to 'zabbix'@'localhost'; FLUSH PRIVILEGES;"; /opt/se-zabbix-scripts/mysql.replication.status se987123
+  722  2024-12-31 22:25:36 exit
+
+Restarting services: systemctl reload-or-restart mysql uwsgi uwsgi3 greylistd dovecot interface_cache filtering_tasks syslog_tasks exim4 exim4-outgoing
+
+
+Need to be watch:
+
+- https://www.youtube.com/watch?v=NTOcdjMs8E4
+
+Need to be ask:----+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+- LC | Cluster: fusionbroadband.com.au | Migration to new host
+- LC | Cluster: dreamit.au | New Local Cloud Installation for DreamIT Australia
+
+Today's Tasks:----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+- [WN] SSL certificate expiring on mx2.plinq.nl & mx3.plinq.nl
+- [WN] SSL certificate expiring on mailgw04.netgroup.dk
+- MySQL migration count >35K (69904) on antispam4.spamfiltering.com
+- [Zabbix_SE] MySQL migration count >35K (38397) on delivery9.nospamcloud.com
+
+
+Pending from Support:----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+- 
+- 
+
+
+~ Created Maintenance: GTT Planned Work Notification Master Ticket 9012695 – New
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Post In meeting:-
+
+Hello Everyone,
+
+Here are the updates for today's tasks:
+
+- [WN] SSL certificate expiring on mx1.mammothcloud.com.au & on mx2.mammothcloud.com.au
+- Worked on Disk extend on cluster ergonet.pl & fixed most of the active triggers on this cluster
+- Working on sb_hashes issue on cluster cleverspeed.com
+
+
+
+ 
+
+- 
+##  I have created Maintenance: ISP notification: Subj. "Cogent - #NC543-46 Emergency Planned maintenance on 15/NOV/2024" Sydney local time | Date: 14-Nov-2024 -- 14:00 PM to 18:00 PM UTC+1
+
+Pending Tasks:----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+- SSH issue on spam1.anycloud.dk & multiple triggers on this cluster *.anycloud.dk
+- Node filter2.ionline.nl is not accessible & Multiple triggers active on this cluster *.ionline.nl
+- Request to install 2 new servers and replace master server  ---> mithrilnetwork.com
+- [ LC Install ] - Replace securemail02/securemail03.officeinfra.com
+- Local Scan Errors - v-dc.net.au: rejected by local_scan: Invalid license.
+- Exim Service Stopping - premiumantispam.nl
+- [LC IP Change]: node1.spamproof.nl
+
+- 
+- 
+- 
+
+
+Helped Vikash on:----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+- on MASTER in the filter_master.quarantine_servers table with specific score.
+- on MASTER in MySQl filter_master.logging_servers table with specific score.
+
+
+===================================================================================================================================================================================================
+
+Thank you for the follow-up. We are glad to know that the node is now up. Please feel free to reach out if you have any questions or need any assistance.
+
+
+cat /etc/spamexperts/interfaces.conf
+
+
+To manuallly set the exim, go with below steps:
+
+
+#exim.limits -s mijn.host -m -u --user='israrul.haque'
+->>alex.hostnet.nl smtp_accept_max [177]: 50
+->>alex.hostnet.nl smtp_load_reserve [35]: 15
+->>Update remote Exim configs? [y/n]: y
+
+
+
+Disk full issue on log26
+
+ 1210  2024-11-18 00:25:07 sudo disk_full general_cleanup
+ 1211  2024-11-18 00:25:12 df -h
+ 1212  2024-11-18 09:39:47 ls -lah /var/lib/mysql/
+ 1213  2024-11-18 09:39:54 df -h
+ 1214  2024-11-18 09:41:20 du -sh /var/lib/mysql/mx_messages/
+ 1215  2024-11-18 09:41:22 du -sh /var/lib/mysql/mx_messages/*
+ 1216  2024-11-18 09:42:03 du -sh /var/lib/mysql/mx_messages/* | grep G
+ 1217  2024-11-18 09:42:13 du -sh /var/lib/mysql/mx_messages_outgoing/* | grep G
+ 1218  2024-11-18 09:42:45 df -h
+ 1219  2024-11-18 09:43:06 mysql mx_messages
+ 1220  2024-11-18 09:43:09 mysql mx_messages -A
+ 1221  2024-11-18 09:43:16 du -sh /var/lib/mysql/mx_messages/* | grep G
+ 1222  2024-11-18 09:43:37 mysql mx_messages -e "show tables;" | grep dgroup_eu
+ 1223  2024-11-18 09:43:43 mysql mx_messages -e "show tables;" | grep dgroup
+ 1224  2024-11-18 09:43:57 mysql mx_messages -e "show tables;" | grep group
+ 1225  2024-11-18 09:44:37 mysql filter -e "select domain,logging_server from relays where domain like '%dgroup.eu%';"
+ 1226  2024-11-18 09:45:12 grep 'dgroup_eu' /var/log/spamexperts/migrate_exim_data.log
+ 1227  2024-11-18 09:45:13 grep 'dgroup_eu' /var/log/spamexperts/migrate_exim_data.log.1
+ 1228  2024-11-18 09:46:06 ls -lah /var/lib/mysql/mx_messages/ | grep dgroup
+ 1229  2024-11-18 09:47:22 mysql mx_messages -A;
+ 1230  2024-11-18 09:47:54 mysql mx_messages -e "show tables;" | grep pp
+ 1231  2024-11-18 09:48:46 mysql filter -e "select domain,logging_server from relays where domain ='pp-group.eu';"
+ 1232  2024-11-18 09:48:50 df -h
+ 1233  2024-11-18 09:50:57 mysql mx_messages -A;
+ 1234  2024-11-18 09:58:06 df -hg
+ 1235  2024-11-18 09:58:08 df -h
+ 1236  2024-11-18 09:58:15 systemctl restart mysql
+ 1237  2024-11-18 09:58:21 df -h
+ 1238  2024-11-18 09:59:20 ls -lah /var/lib/mysql/
+ 1239  2024-11-18 09:59:39 ls -lah /var/lib/mysql/mx_messages/
+ 1240  2024-11-18 09:59:44 ls -lah /var/lib/mysql/mx_messages/ | grep G
+ 1241  2024-11-18 09:59:52 ls -lah /var/lib/mysql/mx_messages_outgoing/ | grep G
+ 1242  2024-11-18 10:01:10 MySQL
+
+===================================================================================================================================================================================================
+
+Need to check load on server 
+
+/opt/se-zabbix-scripts/cron/uwsgi_php_workers.py --show
+
++++++++++++++++++++++++++++++++++++
+
+
+Vlad Liashevich 
+
+April 23, 2025 at 9:22 AM
+@Bruce Dickson  I see PTR:
+
+
+
+$ nslookup 217.102.255.190
+190.255.102.217.in-addr.arpa	name = spamfilter-tst01.se-test.delta.nl.
+ 
+
+but not DNS A record:
+
+
+
+[14:17:14] jump: ~ $ dig A +short @1.1.1.1 spamfilter-tst01.se-test.delta.nl
+[14:17:21] jump: ~ $
+
+[14:17:21] jump: ~ $ dig A +short @8.8.8.8 spamfilter-tst01.se-test.delta.nl
+[14:17:59] jump: ~ $
+
+[14:18:35] jump: ~ $ dig A +short @ns1.dfn.nl spamfilter-tst01.se-test.delta.nl
+[14:18:45] jump: ~ $
+[14:18:45] jump: ~ $ dig A +short @ns2.dfn.nl spamfilter-tst01.se-test.delta.nl
+[14:18:49] jump: ~ $
+where/how they did that?
+
+
+
+++++++++++++++++++++++++++++++++++++
+
+1. https://ocw.mit.edu/courses/6-824-distributed-computer-systems-engineering-spring-2006/
+2. https://ocw.mit.edu/courses/6-5660-computer-systems-security-spring-2024/
+3. https://ocw.mit.edu/courses/15-561-information-technology-essentials-spring-2005/
+
+https://apply.uni-mysore.in/
+Contact us: Contact Number - 9250018018 / Email - contactus@uni-mysore.in
+

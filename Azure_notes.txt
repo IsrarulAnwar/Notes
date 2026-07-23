@@ -1,0 +1,382 @@
+Azure_Notes by_Israr
+
+Azure
+│
+├── 1. Hierarchy
+│
+├── 2. IAM
+│
+├── 3. Governance
+│
+├── 4. Landing Zone
+      │
+      ├── Resource Group
+      ├── Networking
+      ├── Compute
+      ├── Backup
+      ├── Database
+	  ├── Monitoring
+	  ├── ..........
+	  
+This is almost complete infrastructure of Azure.
+
+PART-1 Azure Hierarchy
+
+Management Group
+
+       ↓
+
+Subscription
+
+       ↓
+
+Resource Group
+
+       ↓
+
+Resources
+
+
+PART-2 IAM
+- User
+- Group
+- RBAC
+- PIM
+- Custom Roles
+
+PART-3 Governance
+- Azure Policy
+- Initiative
+- Blueprint
+- Tagging
+- Naming Convention
+- Resource Locks
+
+PART-4 Landing Zone
+
+##Networking
+- VNET
+- Subnet
+- NSG
+- ASG
+- Firewall
+- VPN
+- Express Route
+- Peering
+- DNS
+- Load Balancer
+- Application Gateway
+- NAT Gateway
+- Traffic Manager
+- Front Door
+
+##Compute
+- Virtual Machine
+- VMSS
+- App Service
+- AKS
+- Azure Functions
+- Container Apps
+
+##Storage
+- Storage Account
+- Blob
+- File Share
+- Queue
+- Table
+- Disk
+- Managed Disk
+
+##Backup
+- Recovery Vault
+- VM Backup
+- Storage Backup
+- Database Backup
+- ASR
+- RTO
+- RPO
+
+##Database
+- SQL
+- Cosmos DB
+- MySQL
+- PostgreSQL
+- MariaDB
+
+##Monitoring
+- Azure Monitor
+- Log Analytics
+- Application Insights
+- Alerts
+- Diagnostic Settings
+
+##Security
+- Defender
+- Key Vault
+- Microsoft Entra ID
+- Conditional Access
+- PIM
+- MFA
+- Sentinel
+
+
+----##Azure Hierarchy
+
+[So in interviews or at work: when someone says "management groups", they usually mean the child ones you create.
+When they say "root" or "tenant root group", they always mean the same single top-level one Azure auto-creates.]
+
+Root Management Group / Tenant Root Group / Microsoft Entra ID (Tenant) (same, with no difference, The "Tenant" part refers to your Azure AD / Entra ID tenant.)
+
+↓
+
+Management Group / Child Management Group / Nested Management Groups (that holds subscriptions and other management groups, like: "Platform MG", "Landing Zones MG", "Sandbox MG".) 
+
+↓
+
+Subscription (Subscription means, billing boundary + resource quota.)
+
+↓
+
+Resource Group (It's a logical container of Azure, to logically organize/segregate the resources on Azure)
+				Note:- Agar project delete karna ho aur sab resources isi RG me hain, to RG delete karne par sab resources bhi delete ho jayenge. Isliye production me RG planning bahut important hoti hai.
+↓
+
+Resources (actual Azure services, use to run an application)
+
+
+Q-What exactly is the Root Management Group?
+- When we create an Azure account, Azure automatically creates one Root Management Group for you.
+- You don't create it — it just exists. Every single thing in your Azure organization lives under it.
+- Policies set at Root MG automatically apply to all child MGs, subscriptions, and resources
+- It is the top of the authority chain.
+- Only Global Administrators can manage it.
+- New subscriptions land here by default.
+- You cannot move, rename, or delete it. It's permanent and always at the top.
+
+Eg.:-
+
+Management Group
+
+          ABC Company
+
+              │
+──────────────┼─────────────
+
+Production        Non-Production
+
+        │               │
+
+- Dev Subscription
+- QA Subscription
+- Prod Subscription
+
+
+The hierarchy below Root
+The typical recommended structure (from Microsoft's Cloud Adoption Framework) looks like this:
+#Level						#Example									#Purpose
+- Root MG					(your tenant)								Org-wide baselines — mandatory policies
+- Child MGs					Platform, Landing Zones, Sandbox			Group similar subscriptions
+- Subscriptions				Connectivity, Identity, Production			Billing + isolation boundary
+- Resource Groups			my-app-rg, networking-rg					Logical grouping of resources
+- Resources					VMs, DBs, Storage							Actual services running
+
+
+Production Design Example
+Management Group
+│
+├── Production
+│   ├── Prod Subscription
+│   │   ├── RG-Network
+│   │   ├── RG-SharedServices
+│   │   ├── RG-App1
+│   │   └── RG-App2
+│
+└── Non-Production
+    ├── Dev Subscription
+    └── QA Subscription
+
+Is design se governance, billing aur security ko alag-alag manage karna bahut aasaan ho jata hai.
+
+Management Group Kya Hai?
+
+Management Group ek logical container hai jo multiple Azure Subscriptions ko ek saath manage karne ke liye use hota hai.
+
+Iska main purpose hai:
+
+- Governance / Policy [Eg.- Allow only from- East US, Central India. Baaki region block.]
+- Security [Eg.- Public IP Not Allowed, Storage Public Access Disabled, MFA Mandatory. Ek baar lagao & Sab subscriptions secure]
+- RBAC [Eg.- Role base access like, Cloud Team -> Contributor right, Freshers/Intern -> Read-only access]
+- Compliance [Management Group ensure karta hai ki sab subscriptions same compliance follow karein. Eg.- HIPAA/PCI DSS/ISO/SOC2]
+- Cost Management [Har country ka alag billing. Har department ka alag budget. Management Group se reports organize karna aasaan ho jata hai.]
+
+
+#################################################################################################################################
+
+#1. Fundamentals: What is an Azure Landing Zone?
+Think of Azure like a massive plot of land where you want to build a city (your applications).
+You can’t just start throwing up buildings random places; you first need roads, electricity, plumbing, zoning laws, and a police force.
+
+An Azure Landing Zone is that foundational infrastructure. It is a well-architected, pre-configured environment
+that ensures security, connectivity, identity, and governance are already in place before you deploy a single application.
+
+#2. Hierarchy: Management Groups & Subscriptions
+(Referencing Step 1 in your image: Hierarchy - MG, Subs, Association)
+
+Before creating resources, you must organize your cloud's administrative boundaries. Azure uses a four-level hierarchy:
+
+Hierarchy:-
+Root Management Group
+└── Management Groups (e.g., Prod, Non-Prod, Shared Services)
+    └── Subscriptions (e.g., Core Networking, App-Prod-01 [separate subscription for isolation,costs management etc.] )
+        └── Resource Groups (e.g., rg-prod-web-01)
+            └── Resources (e.g., Virtual Machines, Databases)
+			
+Management Groups (MGs): Containers that help you manage access, policy, and compliance across multiple subscriptions.
+If you apply a rule at the top Management Group, every subscription underneath inherits it.
+
+Subscriptions: The billing and resource boundary. Production workloads should always be in separate subscriptions
+from Non-Production (Dev/Test) workloads to isolate costs and prevent accidental deletion.
+
+Association: This means aligning your subscriptions systematically under the correct Management Groups based on
+business units, environments, or geographies.
+
+#3. Identity & Access Management (IAM)
+(Referencing Step 2 in your image: IAM -> User, Group, RBAC -> PIM)
+
+- Security starts with verifying who you are and what you are allowed to do.
+
+- Users & Groups: Never assign permissions directly to an individual user. Instead,
+create Groups (e.g., grp-network-admins, grp-db-contributors) and assign users to those groups.
+
+- RBAC (Role-Based Access Control):
+* Built-in Roles: Azure provides standard roles like Owner (full control),
+Contributor (can create/modify resources but can't manage access), and Reader (view-only).
+
+* Custom Roles: For production, follow the Principle of Least Privilege.
+If an engineer only needs to restart VMs, build a custom role that only permits that exact action.
+
+- PIM (Privileged Identity Management): In a production environment, nobody should have persistent "Owner" or "Admin" rights.
+PIM enforces Just-In-Time (JIT) access. An engineer must request admin rights, provide a business justification
+(or ticket number), pass Multi-Factor Authentication (MFA), and get approved.
+The permission automatically expires after a few hours.
+
+#4. Governance & Policies
+(Referencing Step 3 in your image: Governance -> Azure Policy / Initiatives -> Built-in / Custom)
+
+- Governance ensures that developers don't accidentally build insecure or overly expensive infrastructure.
+
+- Azure Policy: An automated guardrail system. It evaluates your resources and flags or blocks configurations that violate your rules.
+For example, a policy can state: "Block the creation of any Virtual Machine unless it is restricted to US East region"
+or "Deny public IP addresses on VMs."
+
+- Initiatives: An Initiative is simply a collection of Azure Policies grouped together.
+Instead of assigning 50 individual security policies one by one, you group them into an Initiative
+(like a "PCI-DSS Compliance Initiative") and apply it to a Management Group.
+
+- Built-in vs. Custom: Azure provides hundreds of pre-made templates (Built-in) for standard compliance (like ISO 27001).
+If your company has unique requirements, you write a Custom policy using JSON.
+
+#5. The Landing Zone Buildout
+(Referencing Step 4 in your image: Landing Zone)
+
+Once your hierarchy, identity, and governance are locked down, you deploy the actual architectural components.
+
+= A. Resource Groups
+The logical folder where your actual resources live. Every resource must belong to exactly one Resource Group.
+It represents a lifecycle boundary—if you delete the resource group, everything inside it is deleted.
+
+= B. Networking & Connectivity (The Enterprise Backbone)
+Production environments rely heavily on a Hub-and-Spoke topology.
+
+- Vnet (Virtual Network): Your private network in the cloud.
+
+- Subnet: Chopping your Vnet into smaller segments (e.g., Frontend subnet, Backend subnet, Database subnet).
+
+- NSG (Network Security Group): A basic stateful firewall operating at the subnet or network interface level.
+It filters inbound and outbound traffic using basic IP/Port rules.
+
+- ASG (Application Security Group): Allows you to group VMs together under a functional label (like asg-web-servers)
+and write NSG rules targeting that group instead of hardcoding IP addresses.
+
+- Firewall (Azure Firewall): A cloud-native, intelligent, Layer 3–7 firewall
+that inspects all traffic passing between your networks, blocking malicious threats and filtering URLs.
+
+- Vnet Peering & Global Vnet Peering: Connecting two networks together seamlessly.
+Standard peering connects Vnets in the same region;
+Global peering connects Vnets across different geographic regions (e.g., US to Europe).
+
+- ExpressRoute: A private, dedicated, high-speed physical fiber connection from your on-premises data center
+directly to Microsoft’s edge network, bypassing the public internet entirely.
+
+- VPN Gateway (Site-to-Site / Point-to-Site): 
+* Site-to-Site (S2S): An encrypted VPN tunnel over the public internet connecting your corporate office to Azure.
+
+* Point-to-Site (P2S): A VPN client installed on an individual remote worker's laptop so they can securely access Azure resources from home.
+
+= C. Compute Options
+Depending on the application architecture, you choose the right compute tier:
+
+- Virtual Machines (VMs) & VMSS (VM Scale Sets): Infrastructure-as-a-Service (IaaS).
+VMSS allows your applications to automatically scale up or down (add or remove VMs) based on CPU demand or traffic spikes.
+
+- Web Apps (Azure App Services): Platform-as-a-Service (PaaS). You just hand Azure your code (Node.js, .NET, Python),
+and Microsoft manages the underlying OS, patching, and hardware.
+
+- Azure Functions: Serverless compute. Code executes strictly in response to an event
+(like an uploaded file or an API call) and you only pay for the exact milliseconds it runs.
+
+- Azure Container Services & AKS (Azure Kubernetes Service): For microservices. AKS is an enterprise-grade managed Kubernetes cluster
+that handles the heavy lifting of container orchestration, automated scaling, and networking.
+
+=D. Database Tier
+- SQL Server (Azure SQL): A fully managed relational database with automated patching, backups, and built-in AI features
+for performance tuning.
+
+- Cosmos DB: A globally distributed, multi-model, NoSQL database designed for ultra-low latency applications
+that require sub-millisecond response times at massive scale.
+
+=E. Backup and Disaster Recovery (DR)
+Production workloads must plan for worst-case scenarios (ransomware attacks, regional power grid failures).
+
+- VM / Database / Storage Backup: Regular point-in-time snapshots stored securely in Backup Vaults.
+
+- RTO & RPO: * Recovery Time Objective (RTO): How quickly do you need your systems back online after a crash?
+(e.g., "Must be back up within 1 hour").
+
+* Recovery Point Objective (RPO): How much data can you afford to lose? (e.g., "We can only afford to lose up to 15 minutes of transactional data").
+
+- ASR (Azure Site Recovery): Your ultimate Disaster Recovery tool. It continuously replicates your active VMs and databases
+to an entirely separate geographical Azure region. If your primary region goes completely dark,
+ASR orchestrates a one-click failover to the secondary region.
+
+#6. Advanced Production Engineering (The Next Level)
+To transform this blueprint into a true Production-Grade Enterprise Architecture,
+you must layer on three modern operational concepts not explicitly detailed in basic flowcharts:
+
+- 1. Infrastructure as Code (IaC)
+In a mature environment, no one builds things manually via the Azure Portal GUI. The entire Landing Zone should be defined
+in code using tools like Terraform, Bicep, or Azure Resource Manager (ARM) templates. This code is stored in Git repositories
+(like GitHub or Azure DevOps).
+
+Why? If you need to replicate your entire corporate infrastructure in another region for a disaster recovery test,
+you run your IaC pipeline and deploy the entire environment identically in minutes.
+
+- 2. CI/CD Pipelines
+Changes to your Landing Zone (like updating a firewall rule, creating a new subnet, or modifying an Azure Policy)
+go through automated deployment pipelines. The code is peer-reviewed, tested in a sandbox environment,
+and safely pushed to production without human manual errors.
+
+- 3. Monitoring & Centralized Logging
+You must have eyes on the environment.
+
+- Azure Monitor & Log Analytics Workspaces: Every resource sends its diagnostic metrics and system logs to a single,
+central repository.
+
+- Microsoft Sentinel (SIEM/SOAR): An AI-driven security hub that analyzes all those gathered logs in real-time,
+instantly alerting your security operations team if it detects suspicious login behavior, data exfiltration,
+or brute-force network attacks.
+
+#################################################################################################################################
+
+12:28 PM 7/1/2026
+
