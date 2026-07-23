@@ -1,1 +1,576 @@
+# *Azure Landing Zone Architect Interview Questions & Answers (Terraform + DevSecOps + Security Tools)*
+
+These questions are based on real enterprise Azure Landing Zone implementations using *CAF (Cloud Adoption Framework), **Terraform, **Azure DevOps/GitHub Actions, and **DevSecOps.
+Microsoft now recommends using **Azure Landing Zone Accelerator* with *Azure Verified Modules (AVM)* for Terraform-based deployments.
+
+## *1. What is an Azure Landing Zone?*
+
+*Answer:*
+An Azure Landing Zone is a *pre-configured, secure, governed, scalable cloud foundation* built according to Microsoft CAF.
+
+It includes:
+
+* *Management Groups*
+* *Subscriptions*
+* *Azure Policy*
+* *RBAC*
+* *Networking (Hub-Spoke)*
+* *Identity*
+* *Monitoring*
+* *Security*
+* *Cost Governance*
+* *Automation*
+
+---
+
+## *2. Explain your Landing Zone architecture.*
+
+*Answer:*
+
+Enterprise architecture:
+
+Tenant
+│
+Management Group
+│
+├── Platform MG
+│   ├── Identity Subscription
+│   ├── Connectivity Subscription
+│   └── Management Subscription
+│
+└── Landing Zone MG
+      ├── Dev
+      ├── QA
+      ├── UAT
+      └── Production
+
+
+Connectivity contains:
+
+* Azure Firewall
+* Bastion
+* VPN/ExpressRoute
+* DNS
+* Hub VNet
+
+Application subscriptions contain only workload resources.
+
+---
+
+## *3. Why separate Platform and Application subscriptions?*
+
+*Answer:*
+
+Platform team owns
+
+* Identity
+* Networking
+* Security
+* Monitoring
+
+Application teams own
+
+* AKS
+* VM
+* Storage
+* Database
+* App Services
+
+This provides least privilege and governance.
+
+---
+
+## *4. How do you deploy Landing Zone using Terraform?*
+
+*Answer:*
+
+Pipeline flow:
+
+
+Git
+
+↓
+
+Terraform fmt
+
+↓
+
+Terraform validate
+
+↓
+
+TFLint
+
+↓
+
+tfsec
+
+↓
+
+Checkov
+
+↓
+
+Trivy IaC
+
+↓
+
+Terraform Plan
+
+↓
+
+Manual Approval
+
+↓
+
+Terraform Apply
+
+↓
+
+Post Deployment Validation
+
+
+Production deployments should use governed CI/CD pipelines, separate identities for plan/apply, and manual approval before apply. ([Microsoft Learn][2])
+
+---
+
+# *5. Repository Structure*
+
+
+landing-zone
+
+modules
+
+management-group
+
+policy
+
+subscription
+
+network
+
+firewall
+
+bastion
+
+monitoring
+
+identity
+
+environments
+
+dev
+
+qa
+
+uat
+
+prod
+
+pipelines
+
+backend
+
+scripts
+
+
+---
+
+# *6. How do you manage Terraform state?*
+
+*Answer*
+
+Azure Storage Account
+
+Backend:
+
+* Blob Storage
+* Container
+* tfstate
+
+Security:
+
+* Private Endpoint
+* Versioning
+* Soft Delete
+* CMK Encryption
+* Firewall Enabled
+
+---
+
+# *7. How do you avoid state corruption?*
+
+*Answer*
+
+* Remote Backend
+* State Locking
+* PR Reviews
+* One Apply Pipeline
+* Feature Branch Strategy
+
+---
+
+# *8. Which authentication do you use?*
+
+*Answer*
+
+Production:
+
+* *OIDC Workload Identity Federation (preferred)*
+* User Assigned Managed Identity
+
+Avoid Client Secret authentication whenever possible.
+
+---
+
+# *9. Security tools used*
+
+*Answer*
+
+Terraform
+
+* Terraform Validate
+* Terraform fmt
+* TFLint
+
+IaC Security
+
+* tfsec
+* Checkov
+* Trivy
+* Terrascan
+
+Secrets
+
+* TruffleHog
+* GitLeaks
+
+Dependency
+
+* Snyk
+* Mend
+* BlackDuck
+
+Container
+
+* Trivy
+* Grype
+
+Code
+
+* SonarQube
+
+---
+
+# *10. Difference between tfsec and Checkov*
+
+*Answer*
+
+*tfsec*
+
+* Terraform focused
+* Fast
+* CLI
+* Security only
+
+*Checkov*
+
+* Multi Cloud
+* Terraform
+* Kubernetes
+* ARM
+* Docker
+* GitHub Actions
+* Azure Pipelines
+* Custom Policies
+
+---
+
+# *11. Why both tfsec and Checkov?*
+
+Because
+
+tfsec catches Terraform misconfigurations quickly
+
+Checkov performs enterprise policy validation
+
+Together they improve security coverage.
+
+---
+
+# *12. Explain Hub-Spoke Architecture*
+
+Hub
+
+* Firewall
+* Bastion
+* VPN
+* DNS
+* Shared Services
+
+Spoke
+
+* AKS
+* VM
+* App Service
+* Database
+
+Traffic
+
+Internet
+
+↓
+
+Firewall
+
+↓
+
+Hub
+
+↓
+
+Spoke
+
+↓
+
+Application
+
+---
+
+# *13. How do you secure Storage Account?*
+
+Answer
+
+* Private Endpoint
+* Disable Public Access
+* TLS 1.2+
+* CMK Encryption
+* Defender Enabled
+* Azure Policy
+* Firewall Rules
+
+---
+
+# *14. How do you secure Key Vault?*
+
+* Private Endpoint
+* RBAC
+* Soft Delete
+* Purge Protection
+* Firewall
+* Managed Identity
+
+---
+
+# *15. Explain Azure Policy*
+
+Examples
+
+Allowed Region
+
+Allowed VM SKU
+
+Mandatory Tags
+
+HTTPS Only
+
+Private Endpoint Mandatory
+
+No Public IP
+
+Encryption Required
+
+---
+
+# *16. Difference between RBAC and Azure Policy*
+
+RBAC
+
+Controls *Who* can access resources.
+
+Azure Policy
+
+Controls *What* can or cannot be deployed.
+
+---
+
+# *17. How do you enforce governance?*
+
+Using
+
+* Azure Policy
+* Initiative
+* Management Groups
+* Tags
+* Locks
+* Defender
+* Budgets
+* Cost Alerts
+
+---
+
+# *18. Which monitoring services are deployed?*
+
+* Azure Monitor
+* Log Analytics
+* Application Insights
+* Diagnostic Settings
+* Defender for Cloud
+* Sentinel
+
+---
+
+# *19. What happens after Terraform Apply?*
+
+Pipeline performs
+
+Health Check
+
+↓
+
+Smoke Test
+
+↓
+
+Policy Validation
+
+↓
+
+Security Scan
+
+↓
+
+Monitoring Validation
+
+↓
+
+Notification
+
+---
+
+# *20. Production Best Practices*
+
+* Remote Backend
+* Separate State Files
+* Feature Branch
+* Pull Request Review
+* Manual Approval
+* OIDC Authentication
+* Private Endpoints
+* Azure Firewall
+* Bastion
+* Defender
+* Azure Policy
+* No Public IP
+* Monitoring
+* Backup
+* Disaster Recovery
+* Cost Governance
+
+---
+
+# *21. Scenario Question*
+
+### *Interviewer: A developer wants Public IP on VM. What do you do?*
+
+*Answer*
+
+Reject deployment using Azure Policy.
+
+Provide access through:
+
+* Azure Bastion
+* VPN
+* Jumpbox
+* Just-In-Time (JIT) VM Access
+
+---
+
+# *22. Scenario Question*
+
+### *Terraform Apply failed halfway.*
+
+*Answer*
+
+* Check State File
+* Review Plan
+* Import Existing Resources if needed
+* Remove Corrupted State Entries
+* Re-run Plan
+* Apply after validation
+
+---
+
+# *23. Scenario Question*
+
+### *How do multiple teams work on the same Landing Zone?*
+
+Answer
+
+Separate repositories
+
+↓
+
+Separate State Files
+
+↓
+
+Separate Pipelines
+
+↓
+
+PR Review
+
+↓
+
+Manual Approval
+
+↓
+
+Production Apply
+
+---
+
+# *24. Architect-Level Question*
+
+### *How do you make your Landing Zone reusable for multiple business units?*
+
+*Answer*
+
+Create reusable Terraform modules for:
+
+* Management Groups
+* Subscriptions
+* Hub Network
+* Spoke Network
+* Firewall
+* Bastion
+* Key Vault
+* Monitoring
+* Policies
+
+Parameterize using variables and environment-specific .tfvars, so each business unit gets its own isolated deployment while sharing the same codebase.
+
+---
+
+# *25. Architect-Level Question*
+
+### *If you were designing a Landing Zone for a banking client, what additional security would you implement?*
+
+*Answer*
+
+* Zero Trust architecture
+* Private Endpoints everywhere
+* Azure Firewall Premium with TLS inspection
+* Microsoft Defender for Cloud
+* Microsoft Sentinel
+* Customer Managed Keys (CMK)
+* Azure Policy with deny assignments
+* Privileged Identity Management (PIM)
+* Conditional Access
+* Immutable backups
+* Geo-redundant disaster recovery
+* Continuous compliance scanning
+
+----
 
