@@ -1,3 +1,499 @@
+Below are *Azure CAF (Cloud Adoption Framework) + Azure Landing Zone* interview questions arranged from *Low → Medium → High → Advanced/Architect* level.
+These are commonly asked in *Azure DevSecOps, Cloud Engineer, Platform Engineer, and Cloud Architect* interviews.
+
+---
+
+# *🟢 Low Level (Basics)*
+
+### 1. What is Azure Cloud Adoption Framework (CAF)?
+
+*Answer:*
+CAF is Microsoft's guidance to *plan, prepare, migrate, govern, secure, and operate* cloud environments using best practices.
+
+---
+
+### 2. What are the phases of CAF?
+
+* *Strategy*
+* *Plan*
+* *Ready*
+* *Adopt*
+* *Govern*
+* *Manage*
+
+---
+
+### 3. What is an Azure Landing Zone?
+
+A Landing Zone is a *pre-configured Azure environment* following Microsoft's best practices for:
+
+* *Identity*
+* *Networking*
+* *Security*
+* *Governance*
+* *Monitoring*
+* *Resource Organization*
+
+---
+
+### 4. Why do we need Landing Zones?
+
+* *Standardization*
+* *Security*
+* *Scalability*
+* *Automation*
+* *Governance*
+* *Compliance*
+
+---
+
+### 5. Difference between CAF and Landing Zone?
+
+CAF = Overall cloud adoption methodology.
+
+Landing Zone = Technical implementation inside CAF.
+
+---
+
+### 6. Which CAF phase contains Landing Zone?
+
+*Ready Phase*
+
+---
+
+### 7. What problems does Landing Zone solve?
+
+* Resource sprawl
+* Security issues
+* Manual deployments
+* Naming inconsistency
+* Policy violations
+
+---
+
+### 8. Is Landing Zone mandatory?
+
+Not mandatory, but *highly recommended* for enterprise environments.
+
+---
+
+# *🟡 Medium Level*
+
+### 9. Explain Landing Zone Architecture.
+
+Contains:
+
+* *Management Groups*
+* *Subscriptions*
+* *RBAC*
+* *Azure Policy*
+* *Networking*
+* *Monitoring*
+* *Security*
+* *Identity*
+* *Backup*
+* *Disaster Recovery*
+
+---
+
+### 10. What is Management Group hierarchy?
+
+
+Tenant Root
+
+├── Platform
+│   ├── Identity
+│   ├── Connectivity
+│   └── Management
+
+├── Landing Zones
+│   ├── Production
+│   └── Non-Production
+
+└── Sandbox
+
+
+---
+
+### 11. Why use multiple subscriptions?
+
+* Billing
+* Isolation
+* Security
+* Limits
+* Governance
+
+---
+
+### 12. Platform Subscription contains?
+
+* Hub Network
+* Firewall
+* Bastion
+* DNS
+* ExpressRoute
+* VPN Gateway
+
+---
+
+### 13. Identity Subscription contains?
+
+* Microsoft Entra ID integration
+* Domain Controllers (if required)
+* Identity services
+
+---
+
+### 14. Management Subscription contains?
+
+* Log Analytics
+* Azure Monitor
+* Microsoft Defender for Cloud
+* Backup
+* Automation Account
+
+---
+
+### 15. What is Hub-Spoke architecture?
+
+Hub = Shared services
+
+Spokes = Application VNets
+
+---
+
+### 16. Why Hub-Spoke?
+
+* Centralized Security
+* Cost optimization
+* Easier management
+
+---
+
+### 17. What governance services are used?
+
+* *Azure Policy*
+* *RBAC*
+* *Management Groups*
+* *Tags*
+* *Resource Locks*
+* *Budgets*
+
+---
+
+### 18. How do you enforce tagging?
+
+Using *Azure Policy*.
+
+---
+
+### 19. How do you restrict VM sizes?
+
+Azure Policy
+
+---
+
+### 20. How do you prevent Public IP creation?
+
+Azure Policy (Deny)
+
+---
+
+# *🟠 High Level*
+
+### 21. Explain Landing Zone deployment process.
+
+1. Create Management Groups
+2. Create Subscriptions
+3. Configure RBAC
+4. Deploy Hub Networking
+5. Configure Policies
+6. Enable Monitoring
+7. Configure Security
+8. Deploy Workloads
+
+---
+
+### 22. How do you deploy Landing Zones?
+
+Using:
+
+* *Terraform*
+* Azure Bicep
+* ARM Templates
+* Azure Verified Modules (AVM)
+
+---
+
+### 23. Which Terraform modules are created?
+
+* Management Group
+* Subscription
+* Resource Group
+* Network
+* Firewall
+* NSG
+* Key Vault
+* Monitoring
+* Policy
+* Role Assignment
+
+---
+
+### 24. How do you manage multiple environments?
+
+Separate:
+
+* State files
+* Variables
+* Pipelines
+* Subscriptions
+
+---
+
+### 25. Where is Terraform state stored?
+
+Azure Storage Account.
+
+---
+
+### 26. How do you secure Terraform backend?
+
+* Private Endpoint
+* Firewall
+* RBAC
+* Encryption
+* Blob versioning
+
+---
+
+### 27. How do you deploy policies automatically?
+
+Terraform + Azure DevOps Pipeline
+
+---
+
+### 28. Explain connectivity subscription.
+
+Contains:
+
+* Firewall
+* VPN Gateway
+* ExpressRoute
+* Bastion
+* DNS
+* Hub VNet
+
+---
+
+### 29. Explain Management subscription.
+
+Contains:
+
+* Log Analytics
+* Azure Monitor
+* Sentinel
+* Automation
+* Defender
+
+---
+
+### 30. Explain Identity subscription.
+
+Contains identity-related shared services and integrations.
+
+---
+
+# *🔴 Advanced Level*
+
+### 31. Explain Enterprise Scale Landing Zone.
+
+Includes:
+
+* Platform Management Groups
+* Shared Services
+* Connectivity
+* Identity
+* Governance
+* Security
+* Management
+
+---
+
+### 32. Difference between Hub-Spoke and Virtual WAN?
+
+Hub-Spoke:
+
+* Better control
+* Lower complexity
+
+Virtual WAN:
+
+* Global connectivity
+* Large enterprise scale
+* SD-WAN integration
+
+---
+
+### 33. How do you secure Landing Zones?
+
+* Private Endpoints
+* Azure Firewall
+* WAF
+* NSGs
+* DDoS Protection
+* Key Vault
+* Defender for Cloud
+* Azure Policy
+
+---
+
+### 34. Explain Zero Trust in Landing Zone.
+
+* Verify explicitly
+* Least privilege
+* Assume breach
+* Continuous monitoring
+
+---
+
+### 35. How do you implement least privilege?
+
+* RBAC
+* PIM
+* Just-In-Time (JIT) access
+* Custom Roles
+
+---
+
+### 36. How do you handle subscription vending?
+
+Automated creation using Terraform or Azure APIs with:
+
+* Management Group assignment
+* Policies
+* RBAC
+* Budget
+* Tags
+
+---
+
+### 37. How do you implement compliance?
+
+* Azure Policy
+* Initiatives
+* Defender for Cloud
+* Microsoft Sentinel
+* Continuous compliance reporting
+
+---
+
+### 38. Explain Landing Zone monitoring architecture.
+
+* Azure Monitor
+* Log Analytics Workspace
+* Application Insights
+* Alerts
+* Action Groups
+* Dashboards
+
+---
+
+### 39. Explain networking security flow.
+
+Internet
+
+↓
+
+Azure Front Door
+
+↓
+
+Application Gateway (WAF)
+
+↓
+
+Azure Firewall
+
+↓
+
+Hub
+
+↓
+
+Spoke
+
+↓
+
+Application
+
+---
+
+### 40. Explain CI/CD for Landing Zone.
+
+Developer
+
+↓
+
+Git
+
+↓
+
+Pull Request
+
+↓
+
+Terraform fmt
+
+↓
+
+Terraform validate
+
+↓
+
+TFLint
+
+↓
+
+Checkov
+
+↓
+
+tfsec
+
+↓
+
+Terraform plan
+
+↓
+
+Manual Approval
+
+↓
+
+Terraform apply
+
+↓
+
+Post-deployment validation
+
+---
+
+# *🏆 Architect-Level Scenario Questions*
+
+1. Design a Landing Zone for *500 Azure subscriptions*.
+2. How would you migrate *300 applications* into CAF?
+3. How would you separate *Production* and *Non-Production* environments?
+4. How would you enforce *enterprise tagging standards* across all subscriptions?
+5. How would you prevent developers from creating *Public IPs*?
+6. How would you design a *multi-region* Landing Zone?
+7. How would you deploy Landing Zones using *Terraform* with reusable modules?
+8. How would you integrate *Azure DevOps* pipelines with Landing Zone deployments?
+9. How would you implement *subscription vending* for new business units?
+10. How would you design a *secure, scalable, and compliant* Azure platform that follows CAF and supports future growth?
+
+These questions cover the progression from *basic concepts* to *enterprise architecture* and are frequently discussed in Azure DevSecOps interviews, especially for roles involving platform engineering, cloud governance, and infrastructure automation.
+
 # *Azure Landing Zone Architect Interview Questions & Answers (Terraform + DevSecOps + Security Tools)*
 
 These questions are based on real enterprise Azure Landing Zone implementations using *CAF (Cloud Adoption Framework), **Terraform, **Azure DevOps/GitHub Actions, and **DevSecOps.
